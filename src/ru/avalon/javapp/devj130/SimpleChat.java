@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class SimpleChat implements ISimpleChat{
+    private static ArrayList<NewClient> clients = new ArrayList<>();
     private BufferedReader reader;
     private BufferedWriter writer;
     private Socket socket;
@@ -23,24 +24,8 @@ public class SimpleChat implements ISimpleChat{
         port = scanner.nextInt();
         System.out.println();
 
-        try {
-            socket = new Socket(ip, port);
-            BufferedReader in  = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintStream out = new PrintStream(socket.getOutputStream());
-            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-
-            String message;
-
-            while (true) {
-                message=reader.readLine();
-                out.println(message);
-                System.out.println(in.readLine());
-                if (message.equalsIgnoreCase("exit")) break;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+       NewClient newClient = new NewClient();
+       newClient.run(ip, port, socket);
     }
 
     @Override
@@ -78,8 +63,9 @@ public class SimpleChat implements ISimpleChat{
                             e.printStackTrace();
                         }
                         if (message.equalsIgnoreCase("exit")) break;
-                        out.println("Сервер принял:     " + message);
-                        System.out.println("Сервер принял:     " + message);
+                            out.println("Сервер принял:     " + message);
+                            System.out.println("Сервер принял:     " + message);
+
                     }
                 }).start();
             }
