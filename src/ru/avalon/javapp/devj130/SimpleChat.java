@@ -10,10 +10,8 @@ public class SimpleChat implements ISimpleChat{
     private static ArrayList<NewClient> clients = new ArrayList<>();
     private BufferedReader reader;
     private BufferedWriter writer;
-    private Socket socket;
     public static String ip;
     public static int port;
-    private PrintStream out;
 
     @Override
     public void client() throws ChatException {
@@ -24,90 +22,63 @@ public class SimpleChat implements ISimpleChat{
         port = scanner.nextInt();
         System.out.println();
 
-       NewClient newClient = new NewClient();
-       newClient.run(ip, port, socket);
+        try {
+            Socket socket = new Socket(ip, port);
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writer= new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        new Thread(() -> {
+            String message = null;
+            while (true) {
+                try {
+                    message = reader.readLine();
+                    if (message != null)
+                        System.out.println("Another user sent: " + message);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
     }
 
     @Override
     public void server() throws ChatException {
         try (ServerSocket server = new ServerSocket(ISimpleChat.SERVER_PORT, 2)) {
-            System.out.println("Start server...\n");
+            //System.out.println("Start server...\n");
             Socket serverSocket;
 
             while (true) {
                 serverSocket = server.accept();
                 System.out.println("Client connected!");
-                Socket finalServerSocket = serverSocket;
-                new Thread(() -> {
-                    while (true) {
-                        BufferedReader in = null;
-                        try {
-                            in = new BufferedReader(new InputStreamReader(finalServerSocket.getInputStream()));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        PrintStream out = null;
-                        try {
-                            out = new PrintStream(finalServerSocket.getOutputStream());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
 
-                        System.out.println("Ждем сообщения от клиента...");
-
-                        String message = null;
-
-                        try {
-                            message = in.readLine();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        if (message.equalsIgnoreCase("exit")) break;
-                            out.println("Сервер принял:     " + message);
-                            System.out.println("Сервер принял:     " + message);
-
-                    }
-                }).start();
+                NewClient newClient = new NewClient(serverSocket);
+                clients.add(newClient);
+                new Thread(newClient).start();
             }
-
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            close();
         }
     }
 
 
     @Override
     public String getMessage() throws ChatException {
-        try {
-
-            socket = new Socket("127.0.0.1", 45678);
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        String inMes = null;
-        try {
-            inMes = reader.readLine();
-        } catch (IOException e1) {
-            e1.printStackTrace();
-        }
-        System.out.println("getMessage=" + inMes);
-        return inMes;
+            for (NewClient o : clients) {
+                o.getMessage();
+            }
+        return null;
     }
 
     @Override
     public void sendMessage(String message) throws ChatException {
-        try {
-            socket = new Socket("127.0.0.1", 45678);
-            writer= new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            out = new PrintStream(socket.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
+        for (NewClient o : clients) {
+            o.sendMessage(message);
         }
-
-        out.println(message);
-        System.out.println("sendMessage=" + message);
     }
 
     @Override
