@@ -1,15 +1,12 @@
 package ru.avalon.javapp.devj130;
 
+
 public class Run_server {
     public static void main(String[] args) throws ChatException {
-        new Thread(() -> {
-            SimpleChat server = new SimpleChat();
-            try {
-                server.server();
-            } catch (ChatException e) {
-                e.printStackTrace();
-            }
-        }).start();
+
+        SimpleChat server = new SimpleChat();
+        server.server();
+
 
         SimpleChat client1 = new SimpleChat();
         client1.client();
@@ -17,9 +14,11 @@ public class Run_server {
         client2.client();
 
 
+        System.out.println("Sending a message: Привет");
         client1.sendMessage("Привет");
-        client2.getMessage();
+        System.out.println("Sending a message: Дарова");
         client2.sendMessage("Дарова");
-        client1.getMessage();
+        System.out.println("Sending a message: Как дела?");
+        client2.sendMessage("Как дела?");
     }
 }
