@@ -24,7 +24,7 @@ public class Main {
             System.out.println();
 
             SimpleChat simpleChatClient = new SimpleChat(ip, port);
-            simpleChatClient.server();
+            simpleChatClient.client();
         }
     }
 }
