@@ -26,6 +26,16 @@ public class SimpleChat implements ISimpleChat {
 
     @Override
     public void client() {
+        System.out.println("Client started");
+        new Thread(() -> {
+            while (true) {
+                try {
+                    getMessage();
+                } catch (ChatException ex) {
+                }
+            }
+        }).start();
+
         while (true) {
             try {
                 Scanner scanner = new Scanner(System.in);
@@ -34,7 +44,8 @@ public class SimpleChat implements ISimpleChat {
                 sendMessage(message);
                 if (message.equals("exit")) {
                     System.out.println("Client exited the chat");
-                    break;
+                    close();
+                    System.exit(0);
                 }
             } catch (ChatException ex) {
             }
@@ -61,6 +72,16 @@ public class SimpleChat implements ISimpleChat {
                 }
             }
         }).start();
+
+        while (true) {
+            try {
+                Scanner scanner = new Scanner(System.in);
+                System.out.println("Enter a server message: ");
+                message = scanner.nextLine();
+                sendMessage(message);
+            } catch (ChatException ex) {
+            }
+        }
     }
 
     @Override
@@ -85,6 +106,8 @@ public class SimpleChat implements ISimpleChat {
     public void close() {
         try {
             socket.close();
+            inputStream.close();
+            outputStream.close();
         } catch (IOException ex) {
         }
     }
