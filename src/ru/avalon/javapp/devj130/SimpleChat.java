@@ -76,7 +76,7 @@ public class SimpleChat implements ISimpleChat {
         while (true) {
             try {
                 Scanner scanner = new Scanner(System.in);
-                System.out.println("Enter a server message: ");
+                System.out.println("Enter message: ");
                 message = scanner.nextLine();
                 sendMessage(message);
             } catch (ChatException ex) {
