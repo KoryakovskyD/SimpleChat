@@ -30,7 +30,7 @@ public class SimpleChat implements ISimpleChat {
         new Thread(() -> {
             while (true) {
                 try {
-                    getMessage();
+                    System.out.println("Received: " + getMessage());
                 } catch (ChatException ex) {
                 }
             }
@@ -67,7 +67,13 @@ public class SimpleChat implements ISimpleChat {
         new Thread(() -> {
             while (true) {
                 try {
-                    getMessage();
+                    System.out.println("Received: " + getMessage());
+
+                    if (getMessage().equals("exit")) {
+                        close();
+                        break;
+                    }
+
                 } catch (ChatException ex) {
                 }
             }
@@ -88,7 +94,6 @@ public class SimpleChat implements ISimpleChat {
     public String getMessage() throws ChatException {
         try {
             message = inputStream.readObject().toString();
-            System.out.println("Received: " + message);
         } catch (IOException | ClassNotFoundException ex) {
         }
         return message;
